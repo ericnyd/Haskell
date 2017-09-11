@@ -1,1 +1,2 @@
-# Haskell
+# Haskell projects
+# Author: Sidner Magnéli

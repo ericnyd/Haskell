@@ -1,10 +1,12 @@
 module Blackjack where
 
+-------------Imports-------------
+
 import Cards
 import Wrapper
-
 import Test.QuickCheck hiding (shuffle)
 
+------------Variables------------
 
 aCard1 :: Card
 aCard1 = Card Jack Spades
@@ -17,6 +19,8 @@ guestHand = [aCard1, aCard2, Card Ace Spades]
 
 bankHand :: Hand
 bankHand = [aCard2, Card Ace Spades, Card King Clubs]
+
+------------Functions------------
 
 -- A function which displays a card
 displayCard :: Card -> String
@@ -54,20 +58,25 @@ valueBA [] = 0
 valueBA (x:xs) = valueCard x + valueBA xs
 
 
--- A function calculating the value of a hand with the behavior of aces in mind.
+-- A function calculating the value of a hand with the behavior of aces in mind
 value :: Hand -> Int
 value hand | valueBA hand > 21 = valueBA hand - 10 * numberOfAces hand
            | otherwise         = valueBA hand
 
+-- A functions which decide whether or not a Hand is bust
 gameOver :: Hand -> Bool
 gameOver hand = value hand > 21
 
+-- A function which decide the winner of a game
 winner :: Hand -> Hand -> Player
 winner gHand bHand | gameOver gHand                   = Bank
                    | gameOver bHand                   = Guest
                    | gameOver bHand && gameOver gHand = Bank
                    | value gHand > value bHand        = Guest
                    | otherwise                        = Bank
+
+allRanks :: Rank
+allRanks = []
 
 
 
