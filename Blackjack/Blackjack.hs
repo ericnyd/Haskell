@@ -38,8 +38,8 @@ display (x:xs) = displayCard x ++ ", " ++ display xs
 -- A function which returns the value of a Rank
 valueRank :: Rank -> Int
 valueRank (Numeric n) = n
-valueRank r | r == Jack || r == Queen || r == King = 10
 valueRank Ace = 11
+valueRank _ = 10
 
 -- A function which returns the value of a Card
 valueCard :: Card -> Int
@@ -53,15 +53,15 @@ numberOfAces (x:xs) | (rank x) == Ace = 1 + numberOfAces xs
                     | otherwise       = numberOfAces xs
 
 -- A function which calculates the value of a hand whitout taking into account the change of value of aces
-valueBA :: Hand -> Int
-valueBA [] = 0
-valueBA (x:xs) = valueCard x + valueBA xs
+value' :: Hand -> Int
+value' [] = 0
+value' (x:xs) = valueCard x + value' xs
 
 
 -- A function calculating the value of a hand with the behavior of aces in mind
 value :: Hand -> Int
-value hand | valueBA hand > 21 = valueBA hand - 10 * numberOfAces hand
-           | otherwise         = valueBA hand
+value hand | value' hand > 21 = value' hand - 10 * numberOfAces hand
+           | otherwise         = value' hand
 
 -- A functions which decide whether or not a Hand is bust
 gameOver :: Hand -> Bool
@@ -75,8 +75,42 @@ winner gHand bHand | gameOver gHand                   = Bank
                    | value gHand > value bHand        = Guest
                    | otherwise                        = Bank
 
-allRanks :: Rank
-allRanks = []
 
 
 
+
+
+
+-- A function which return a list of all possible Ranks
+allRanks :: [Rank]
+allRanks = [Numeric x | x <- [2..10]] ++ [Jack, Queen, King, Ace]
+
+-- A function which return a list of all possible Suits
+allSuits :: [Suit]
+allSuits = [Hearts, Spades, Diamonds, Clubs]
+
+-- A funcion which return a full Deck
+fullDeck :: Deck
+fullDeck = Deck [Card x y | x <- allRanks, y <- allSuits]
+
+-- A property function used to test whether the function "fullDeck" returns a Deck containing 52 cards.
+prop_size_fullDeck :: Bool
+prop_size_fullDeck = size (cards fullDeck) == 52
+
+draw :: Deck -> Hand -> (Deck, Hand)
+draw (Deck []) hand     = error "draw: The deck is empty."
+draw (Deck (x:xs)) hand = (Deck xs, x:hand)
+
+playBank :: Deck -> Hand 
+playBank deck = playBank' deck []
+
+playBank' :: Deck -> Hand -> Hand
+playBank' deck bankHand 
+    | value bankHand >= 16 = bankHand
+    | otherwise            = playBank' deck' bankHand'
+    where (deck', bankHand') = draw deck bankHand
+    
+--shuffle :: [Double] -> Deck -> Deck  
+
+--shuffle' :: [Double] -> [Card] -> [Card]
+--shuffle' 
