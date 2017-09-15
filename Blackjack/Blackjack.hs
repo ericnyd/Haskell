@@ -69,16 +69,12 @@ gameOver hand = value hand > 21
 
 -- A function which decide the winner of a game
 winner :: Hand -> Hand -> Player
-winner gHand bHand | gameOver gHand                   = Bank
-                   | gameOver bHand                   = Guest
-                   | gameOver bHand && gameOver gHand = Bank
-                   | value gHand > value bHand        = Guest
-                   | otherwise                        = Bank
-
-
-
-
-
+winner gHand bHand 
+    | gameOver gHand                   = Bank
+    | gameOver bHand                   = Guest
+    | gameOver bHand && gameOver gHand = Bank
+    | value gHand > value bHand        = Guest
+    | otherwise                        = Bank
 
 
 -- A function which return a list of all possible Ranks
@@ -101,16 +97,31 @@ draw :: Deck -> Hand -> (Deck, Hand)
 draw (Deck []) hand     = error "draw: The deck is empty."
 draw (Deck (x:xs)) hand = (Deck xs, x:hand)
 
-playBank :: Deck -> Hand 
+playBank :: Deck -> Hand
 playBank deck = playBank' deck []
 
 playBank' :: Deck -> Hand -> Hand
 playBank' deck bankHand 
     | value bankHand >= 16 = bankHand
-    | otherwise            = playBank' deck' bankHand'
-    where (deck', bankHand') = draw deck bankHand
-    
---shuffle :: [Double] -> Deck -> Deck  
+    | otherwise            = playBank' newDeck bankHand'
+    where (newDeck, bankHand') = draw deck bankHand     
 
---shuffle' :: [Double] -> [Card] -> [Card]
---shuffle' 
+shuffle :: [Double] -> Deck -> Deck
+shuffle randList deck = Deck (shuffle' randList (cards deck))
+
+shuffle' :: [Double] -> [Card] -> [Card]
+shuffle' _ []        = []
+shuffle' (x:xs) deck = deck !! index : shuffle' xs (newDeck index deck)
+    where index = (floor (x * fromIntegral(length deck)))
+
+newDeck :: Int -> [Card] -> [Card]
+newDeck 0 (x:xs) = xs
+newDeck n (x:xs) = x : (newDeck (n-1) xs)
+
+belongsTo :: Card -> Deck -> Bool
+c `belongsTo` (Deck [])      = False
+c `belongsTo` (Deck (c':cs)) = c == c' || c `belongsTo` (Deck cs)
+
+prop_shuffle :: Card -> Deck -> Rand -> Bool
+prop_shuffle card deck (Rand randomlist) =
+    card `belongsTo` deck == card `belongsTo` shuffle randomlist deck
