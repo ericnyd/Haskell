@@ -125,3 +125,21 @@ c `belongsTo` (Deck (c':cs)) = c == c' || c `belongsTo` (Deck cs)
 prop_shuffle :: Card -> Deck -> Rand -> Bool
 prop_shuffle card deck (Rand randomlist) =
     card `belongsTo` deck == card `belongsTo` shuffle randomlist deck
+
+prop_size_shuffle :: Rand -> Deck -> Bool
+prop_size_shuffle (Rand randomlist) (Deck cardlist) = length cardlist == length shuffledDeck
+        where shuffledDeck = (cards (shuffle randomlist (Deck cardlist)))
+
+implementation = Interface
+    {  iFullDeck  = fullDeck
+    ,  iValue     = value
+    ,  iDisplay   = display
+    ,  iGameOver  = gameOver
+    ,  iWinner    = winner
+    ,  iDraw      = draw
+    ,  iPlayBank  = playBank
+    ,  iShuffle   = shuffle
+    }
+
+main :: IO ()
+main = runGame implementation
