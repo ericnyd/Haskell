@@ -93,19 +93,23 @@ fullDeck = Deck [Card x y | x <- allRanks, y <- allSuits]
 prop_size_fullDeck :: Bool
 prop_size_fullDeck = size (cards fullDeck) == 52
 
+-- A function which draws the first card of a deck and places it in a hand
 draw :: Deck -> Hand -> (Deck, Hand)
 draw (Deck []) hand     = error "draw: The deck is empty."
 draw (Deck (x:xs)) hand = (Deck xs, x:hand)
 
+--  A function which returns the bank-hand
 playBank :: Deck -> Hand
 playBank deck = playBank' deck []
 
+-- A function that builds the bank-hand by drawing cards from given deck
 playBank' :: Deck -> Hand -> Hand
 playBank' deck bankHand 
     | value bankHand >= 16 = bankHand
     | otherwise            = playBank' newDeck bankHand'
     where (newDeck, bankHand') = draw deck bankHand     
 
+-- A function that takes a deck and uses helper-functions to return a shuffled deck
 shuffle :: [Double] -> Deck -> Deck
 shuffle randList deck = Deck (shuffle' randList (cards deck))
 
@@ -118,18 +122,22 @@ newDeck :: Int -> [Card] -> [Card]
 newDeck 0 (x:xs) = xs
 newDeck n (x:xs) = x : (newDeck (n-1) xs)
 
+-- A function that checks if a card exists in a deck
 belongsTo :: Card -> Deck -> Bool
 c `belongsTo` (Deck [])      = False
 c `belongsTo` (Deck (c':cs)) = c == c' || c `belongsTo` (Deck cs)
 
+-- A property function that checks if a card remains in a deck after the deck has been shuffled
 prop_shuffle :: Card -> Deck -> Rand -> Bool
 prop_shuffle card deck (Rand randomlist) =
     card `belongsTo` deck == card `belongsTo` shuffle randomlist deck
 
+-- A property function that checks if the size of a deck changes after the deck has been shuffled
 prop_size_shuffle :: Rand -> Deck -> Bool
 prop_size_shuffle (Rand randomlist) (Deck cardlist) = length cardlist == length shuffledDeck
         where shuffledDeck = (cards (shuffle randomlist (Deck cardlist)))
 
+-- A package for the interface used to build the game
 implementation = Interface
     {  iFullDeck  = fullDeck
     ,  iValue     = value
@@ -141,5 +149,6 @@ implementation = Interface
     ,  iShuffle   = shuffle
     }
 
+-- Runs the program
 main :: IO ()
 main = runGame implementation
