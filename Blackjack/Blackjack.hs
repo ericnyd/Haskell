@@ -6,7 +6,19 @@ import Cards
 import Wrapper
 import Test.QuickCheck hiding (shuffle)
 
+-- Assignment A
+{-
+sizeSteps :: [Int]
+sizeSteps = [ size hand2
+            , size (Card (Numeric 2) Hearts : (Card Jack Spades : []))
+            , 1 + size (Card Jack Spades : [])
+            , 1 + (1 + size [])
+            , 1 + (1 + 0)
+            , 2
+-}
+
 ------------Variables------------
+
 
 aCard1 :: Card
 aCard1 = Card Jack Spades
@@ -71,8 +83,8 @@ gameOver hand = value hand > 21
 winner :: Hand -> Hand -> Player
 winner gHand bHand 
     | gameOver gHand                   = Bank
-    | gameOver bHand                   = Guest
     | gameOver bHand && gameOver gHand = Bank
+    | gameOver bHand                   = Guest
     | value gHand > value bHand        = Guest
     | otherwise                        = Bank
 
