@@ -75,19 +75,27 @@ allShapes = [S (makeSquares s) | s <- shapes]
 
 -- ** A01
 emptyShape :: (Int,Int) -> Shape
-emptyShape = error "A01 emptyShape undefined"
+emptyShape (x, y) = S (replicate x (emptyRow y))
+
+emptyRow :: Int -> Row
+emptyRow n = replicate n Nothing
 
 -- ** A02
 
 -- | The size (width and height) of a shape
-shapeSize :: Shape -> (Int,Int)
-shapeSize = error "A02 shapeSize undefined"
+shapeSize :: Shape -> (Int, Int)
+shapeSize (S list) = (length list, length (list !! 0))
 
 -- ** A03
 
 -- | Count how many non-empty squares a shape contains
 blockCount :: Shape -> Int
-blockCount = error "A03 blockCount undefined"
+blockCount (S list) = blockCount' (concat list)
+
+blockCount' :: Row -> Int
+blockCount' [] = 0
+blockCount' (x:xs) | x == Nothing = blockCount' xs
+                   | otherwise    = 1 + blockCount' xs
 
 -- * The Shape invariant
 
@@ -95,7 +103,9 @@ blockCount = error "A03 blockCount undefined"
 -- | Shape invariant (shapes have at least one row, at least one column,
 -- and are rectangular)
 prop_Shape :: Shape -> Bool
-prop_Shape = error "A04 prop_Shape undefined"
+prop_Shape shape@(S list) = (shapeSize shape >= (1,1)) && (isRectangle list (length list))
+
+isRectangle :: [Row] -> Int -> Bool
 
 -- * Test data generators
 
